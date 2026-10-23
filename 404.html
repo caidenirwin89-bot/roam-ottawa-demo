@@ -1,37 +1,174 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>ROAM</title>
-    <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->
-    <style id="expo-reset">
-      /* These styles make the body full-height */
-      html,
-      body {
-        height: 100%;
-      }
-      /* These styles disable body scrolling if you are using <ScrollView> */
-      body {
-        overflow: hidden;
-      }
-      /* These styles make the root element full-height */
-      #root {
-        display: flex;
-        height: 100%;
-        flex: 1;
-      }
-    </style>
-  <link rel="icon" href="/roam-ottawa-demo/favicon.ico"/></head>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Roam Ottawa — investor demo</title>
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
+<meta name="googlebot" content="noindex, nofollow" />
+<meta name="referrer" content="no-referrer" />
+<meta name="theme-color" content="#0a0a0b" />
+<link rel="icon" href="/roam-ottawa-demo/favicon.ico" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:#0a0a0b;color:#f4f1ea;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+  #gate{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;overflow:auto}
+  .card{width:100%;max-width:380px;text-align:center}
+  .brand{font-family:Anton,Impact,"Arial Narrow",sans-serif;font-size:64px;letter-spacing:.08em;line-height:1;margin:0 0 6px;color:#f4f1ea;text-transform:uppercase}
+  .sub{font-size:13px;letter-spacing:.22em;text-transform:uppercase;color:#a9a6a0;margin:0 0 36px}
+  form{display:flex;flex-direction:column;gap:14px}
+  input[type=password]{width:100%;height:52px;border-radius:12px;border:1px solid #2a2a2e;background:#141416;color:#f4f1ea;font:500 16px Inter,system-ui,sans-serif;padding:0 16px;outline:none;transition:border-color .15s}
+  input[type=password]:focus{border-color:#e8362f}
+  input.bad{border-color:#e8362f;animation:shake .35s}
+  @keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  button.primary{height:52px;border:0;border-radius:12px;background:#e8362f;color:#fff;font:600 16px Inter,system-ui,sans-serif;cursor:pointer;transition:filter .15s,opacity .15s}
+  button.primary:hover{filter:brightness(1.1)}
+  button.primary:disabled{opacity:.6;cursor:default}
+  button.ghost{height:52px;border-radius:12px;border:1px solid #3a3a3f;background:transparent;color:#f4f1ea;font:600 16px Inter,system-ui,sans-serif;cursor:pointer}
+  button.ghost:hover{border-color:#f4f1ea}
+  label.rem{display:flex;align-items:center;gap:8px;justify-content:center;font-size:13px;color:#a9a6a0;cursor:pointer;user-select:none}
+  label.rem input{accent-color:#e8362f;width:16px;height:16px;margin:0}
+  #msg{min-height:18px;font-size:13px;color:#e8362f;margin:2px 0 0}
+  #choose,#video{display:none}
+  #choose .card{display:flex;flex-direction:column;gap:14px}
+  #choose h2,#video h2{font-family:Anton,Impact,sans-serif;font-weight:400;letter-spacing:.06em;text-transform:uppercase;font-size:30px;margin:0 0 14px}
+  #video .card{max-width:440px}
+  #video video{width:100%;max-height:72vh;border-radius:14px;background:#000;display:block;margin:0 auto 16px}
+  #vmsg{font-size:13px;color:#a9a6a0;margin:0 0 14px;min-height:18px}
+  noscript{display:block;padding:24px;text-align:center;color:#a9a6a0}
+</style>
+</head>
+<body>
+<noscript>JavaScript is required.</noscript>
+<div id="gate">
+  <div class="card" id="prompt">
+    <h1 class="brand">Roam</h1>
+    <p class="sub">Ottawa &middot; Investor demo</p>
+    <form id="f" autocomplete="off">
+      <input id="pw" type="password" placeholder="Password" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Password" autofocus />
+      <button class="primary" id="go" type="submit">Enter</button>
+      <label class="rem"><input type="checkbox" id="rem" /> Remember me on this device</label>
+      <div id="msg" role="alert"></div>
+    </form>
+  </div>
+</div>
+<div id="choose" style="position:fixed;inset:0;align-items:center;justify-content:center;padding:24px;overflow:auto">
+  <div class="card">
+    <h1 class="brand">Roam</h1>
+    <p class="sub">Ottawa &middot; Investor demo</p>
+    <button class="primary" id="openApp" type="button">Open the live demo</button>
+    <button class="ghost" id="openVid" type="button">Watch the walkthrough</button>
+  </div>
+</div>
+<div id="video" style="position:fixed;inset:0;align-items:center;justify-content:center;padding:24px;overflow:auto">
+  <div class="card">
+    <h2>Walkthrough</h2>
+    <p id="vmsg">Decrypting&hellip;</p>
+    <video id="vid" controls playsinline preload="metadata" style="display:none"></video>
+    <button class="ghost" id="back" type="button" style="width:100%">Back</button>
+  </div>
+</div>
+<script>
+(function(){
+  var CFG = {"salt":"z3HnGNyloj5eFJXLb8aCGg==","iter":600000,"check":"uzA206Rz3b6pOaNgVhUi5JuEunWFjuVsgaijX8jIJScZq58=","v":"mvl6z7d3"};
+  var BASE = "/roam-ottawa-demo/";
+  var LS = "roam_demo_k_" + CFG.salt.slice(0,8);
+  var $ = function(id){return document.getElementById(id)};
+  var enc = new TextEncoder(), dec = new TextDecoder();
+  var key = null;
 
-  <body>
-    <!-- Use static rendering with Expo Router to support running without JavaScript. -->
-    <noscript>
-      You need to enable JavaScript to run this app.
-    </noscript>
-    <!-- The root element for your Expo app. -->
-    <div id="root"></div>
-  <script src="/roam-ottawa-demo/_expo/static/js/web/entry-7928e0d1b2bf3cc18ef5cd95ed4ad4f5.js" defer></script>
+  function b64d(s){var b=atob(s),u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u}
+  function b64e(u){var s="";for(var i=0;i<u.length;i+=0x8000)s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return btoa(s)}
+
+  async function deriveKey(pw){
+    var base = await crypto.subtle.importKey("raw", enc.encode(pw), "PBKDF2", false, ["deriveKey"]);
+    return crypto.subtle.deriveKey({name:"PBKDF2",salt:b64d(CFG.salt),iterations:CFG.iter,hash:"SHA-256"}, base, {name:"AES-GCM",length:256}, true, ["decrypt"]);
+  }
+  // blob layout: 12-byte IV || ciphertext || 16-byte GCM tag
+  function decrypt(k, buf){
+    var u = new Uint8Array(buf);
+    return crypto.subtle.decrypt({name:"AES-GCM",iv:u.subarray(0,12)}, k, u.subarray(12));
+  }
+  async function verify(k){
+    try{ var p = await decrypt(k, b64d(CFG.check)); return dec.decode(p) === "roam-ok"; }catch(e){ return false; }
+  }
+  async function fetchBlob(name){
+    var r = await fetch(BASE + "_gate/" + name + "?v=" + CFG.v, {cache:"force-cache"});
+    if(!r.ok) throw new Error("fetch " + r.status);
+    return r.arrayBuffer();
+  }
+  function show(id){
+    ["gate","choose","video"].forEach(function(x){ $(x).style.display = (x===id) ? "flex" : "none"; });
+  }
+
+  async function launchApp(){
+    $("openApp").disabled = true; $("openApp").textContent = "Loading\u2026";
+    try{
+      var js = dec.decode(await decrypt(key, await fetchBlob("app.bin")));
+      document.title = "ROAM";
+      var st = document.createElement("style");
+      st.textContent = "html,body{height:100%}body{overflow:hidden;background:#fff;color:inherit}#root{display:flex;height:100%;flex:1}";
+      document.head.appendChild(st);
+      ["gate","choose","video"].forEach(function(x){ var e=$(x); e.parentNode.removeChild(e); });
+      var root = document.createElement("div"); root.id = "root"; document.body.appendChild(root);
+      var s = document.createElement("script"); s.text = js; document.body.appendChild(s);
+    }catch(e){
+      $("openApp").disabled = false; $("openApp").textContent = "Open the live demo";
+      console.error(e);
+    }
+  }
+
+  var vidUrl = null;
+  async function openVideo(){
+    show("video");
+    if(vidUrl) { $("vid").style.display="block"; $("vmsg").textContent=""; return; }
+    $("vmsg").textContent = "Decrypting\u2026";
+    try{
+      var mp4 = await decrypt(key, await fetchBlob("walkthrough.bin"));
+      vidUrl = URL.createObjectURL(new Blob([mp4], {type:"video/mp4"}));
+      $("vid").src = vidUrl; $("vid").style.display = "block"; $("vmsg").textContent = "";
+    }catch(e){ $("vmsg").textContent = "Couldn\u2019t load the walkthrough."; console.error(e); }
+  }
+
+  function unlocked(){ show("choose"); }
+
+  $("openApp").onclick = launchApp;
+  $("openVid").onclick = openVideo;
+  $("back").onclick = function(){ try{$("vid").pause()}catch(e){} show("choose"); };
+
+  $("f").addEventListener("submit", async function(ev){
+    ev.preventDefault();
+    var pw = $("pw").value; if(!pw) return;
+    $("go").disabled = true; $("msg").textContent = ""; $("pw").classList.remove("bad");
+    var k = null, ok = false;
+    try{ k = await deriveKey(pw); ok = await verify(k); }catch(e){}
+    if(ok){
+      key = k;
+      if($("rem").checked){
+        try{ var raw = await crypto.subtle.exportKey("raw", k); localStorage.setItem(LS, b64e(new Uint8Array(raw))); }catch(e){}
+      }
+      $("pw").value = "";
+      unlocked();
+    } else {
+      $("msg").textContent = "Incorrect password.";
+      void $("pw").offsetWidth; $("pw").classList.add("bad"); $("pw").select();
+    }
+    $("go").disabled = false;
+  });
+
+  // Remember-me: restore the derived AES key (never the password itself)
+  (async function(){
+    try{
+      var saved = localStorage.getItem(LS);
+      if(!saved) return;
+      var k = await crypto.subtle.importKey("raw", b64d(saved), {name:"AES-GCM"}, true, ["decrypt"]);
+      if(await verify(k)){ key = k; unlocked(); } else localStorage.removeItem(LS);
+    }catch(e){ try{localStorage.removeItem(LS)}catch(_){} }
+  })();
+})();
+</script>
 </body>
 </html>
